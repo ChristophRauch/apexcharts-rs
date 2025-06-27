@@ -4,7 +4,6 @@ use wasm_bindgen::JsValue;
 use gloo::timers::callback::Timeout;
 use serde_json::Value;
 use yew::prelude::*;
-use yew::props;
 use crate::prelude::{to_jsvalue, ApexChart, ChartSeries, ChartType, SeriesData};
 
 /// An ApexCharts component for Yew.
