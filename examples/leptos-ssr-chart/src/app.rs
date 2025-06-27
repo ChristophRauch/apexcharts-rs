@@ -1,4 +1,4 @@
-use leptos::*;
+use leptos::prelude::*;
 use leptos_meta::{provide_meta_context, Title, Meta, Stylesheet};
 
 use apexcharts_rs::prelude::{ApexChartComponent, ChartSeries, ChartType, SeriesData};
@@ -134,10 +134,10 @@ pub fn App() -> impl IntoView {
             z_index: None,
         }
     ];
-    let (series_data, _) = create_signal(series);
-    let (multiple_series, _) = create_signal(multiple_series);
-    let (radial_series, _) = create_signal(radial_series);
-    let (category_paired_series, _) = create_signal(category_paired_series);
+    let (series_data, _) = signal(series);
+    let (multiple_series, _) = signal(multiple_series);
+    let (radial_series, _) = signal(radial_series);
+    let (category_paired_series, _) = signal(category_paired_series);
     view! {
 		<>
         <Stylesheet href="/assets/vendor/flowbite/2.3.0/flowbite.min.css" />

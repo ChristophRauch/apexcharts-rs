@@ -6,4 +6,4 @@ edition = "2021"
 
 [dependencies]
 apexcharts-rs = { path="../../../apexcharts-rs", features = ["leptos"] }
-leptos = { version = "0.7", features= ["csr"] }
+leptos = { version = "0.8", features= ["csr"] }

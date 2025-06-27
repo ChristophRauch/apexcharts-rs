@@ -1,14 +1,13 @@
-use leptos::prelude::*;
-
 #[cfg(feature = "ssr")]
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     use actix_files::Files;
     use actix_web::*;
+    use leptos::prelude::get_configuration;
     use leptos_actix::{generate_route_list, LeptosRoutes};
     use leptos_ssr_chart::app::*;
 
-    let conf = get_configuration(None).await.unwrap();
+    let conf = get_configuration(None).unwrap();
     let addr = conf.leptos_options.site_addr;
     // Generate the list of routes in your Leptos App
     let routes = generate_route_list(App);
@@ -22,7 +21,7 @@ async fn main() -> std::io::Result<()> {
             // serve JS/WASM/CSS from `pkg`
             .service(Files::new("/pkg", format!("{site_root}/pkg")))
             // serve other assets from the `assets` directory
-            .service(Files::new("/assets", site_root))
+            .service(Files::new("/assets", site_root.as_ref()))
             .leptos_routes( routes.to_owned(), App)
             .app_data(web::Data::new(leptos_options.to_owned()))
         //.wrap(middleware::Compress::default())
@@ -50,5 +49,5 @@ pub fn main() {
 
     console_error_panic_hook::set_once();
 
-    leptos::mount_to_body(App);
+    leptos::mount::mount_to_body(App);
 }
