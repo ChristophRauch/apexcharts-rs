@@ -234,6 +234,65 @@ mod tests {
 
 		let dated_data = serde_json::to_string(&SeriesData::Dated(vec![("2021-04-29".to_string(), 30), ("2021-04-30".to_string(), 40)])).unwrap();
 		assert_eq!(dated_data, r#"[{"x":"2021-04-29","y":30},{"x":"2021-04-30","y":40}]"#);
+
+		// Test missing variants that are critical for JS interop
+		let radial_data = serde_json::to_string(&SeriesData::Radial(vec![("Direct".to_string(), 52.8), ("Organic".to_string(), 21.4)])).unwrap();
+		assert_eq!(radial_data, r#"[{"x":"Direct","y":52.8},{"x":"Organic","y":21.4}]"#);
+
+		let candlestick_data = serde_json::to_string(&SeriesData::CandleStick(vec![
+			("Mon".to_string(), vec![10.5, 20.0, 9.0, 15.5]),
+			("Tue".to_string(), vec![15.5, 25.0, 14.0, 22.0])
+		])).unwrap();
+		assert_eq!(candlestick_data, r#"[{"x":"Mon","y":[10.5,20.0,9.0,15.5]},{"x":"Tue","y":[15.5,25.0,14.0,22.0]}]"#);
+	}
+
+	#[test]
+	pub fn test_chart_type_js_string_format() {
+		// Test critical JS string mappings that ApexCharts.js expects
+		use crate::prelude::ChartType;
+		
+		assert_eq!(ChartType::BoxPlot.to_string(), "boxPlot");
+		assert_eq!(ChartType::CandleStick.to_string(), "candlestick");
+		assert_eq!(ChartType::RangeBar.to_string(), "rangeBar");
+		assert_eq!(ChartType::RangeArea.to_string(), "rangeArea");
+		assert_eq!(ChartType::HeatMap.to_string(), "heatmap");
+		assert_eq!(ChartType::RadialBar.to_string(), "radialBar");
+		// CircularGauge maps to "radialBar" - this is important for JS interop
+		assert_eq!(ChartType::CircularGauge.to_string(), "radialBar");
+	}
+
+	#[test]
+	pub fn test_chart_series_serialization() {
+		// Test full ChartSeries JSON output that gets sent to ApexCharts.js
+		use crate::prelude::{ChartSeries, ChartType};
+		
+		let series = ChartSeries {
+			name: "Revenue".to_string(),
+			data: SeriesData::CategoryPaired(vec![("Q1".to_string(), 100), ("Q2".to_string(), 120)]),
+			color: "#1A56DB".to_string(),
+			r#type: Some(ChartType::Bar),
+			z_index: Some(5),
+		};
+		
+		let json = serde_json::to_string(&series).unwrap();
+		assert_eq!(json, r##"{"name":"Revenue","data":[{"x":"Q1","y":100},{"x":"Q2","y":120}],"color":"#1A56DB","type":"bar","z_index":5}"##);
+	}
+
+	#[test]
+	pub fn test_chart_series_optional_fields() {
+		// Test that optional fields are properly omitted from JSON when None
+		use crate::prelude::ChartSeries;
+		
+		let series = ChartSeries {
+			name: "Simple".to_string(),
+			data: SeriesData::Single(vec![1, 2, 3]),
+			color: "#FF0000".to_string(),
+			r#type: None,
+			z_index: None,
+		};
+		
+		let json = serde_json::to_string(&series).unwrap();
+		assert_eq!(json, r##"{"name":"Simple","data":[1,2,3],"color":"#FF0000"}"##);
 	}
 
 }
